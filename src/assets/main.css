@@ -1,0 +1,110 @@
+@tailwind base;
+@tailwind components;
+
+#app {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color: #2c3e50;
+}
+
+/**
+ * Headings
+ */
+h1 { @apply text-xl font-bold }
+
+/**
+ * Fonts
+ */
+.font-number {
+    font-variant-numeric: tabular-nums;
+}
+
+/**
+ * Forms
+  * @see tailwind plugins in config file
+  * @see https://github.com/tailwindcss/custom-forms
+ */
+.form-label {
+    @apply text-gray-600 uppercase text-sm tracking-wide;
+}
+
+
+
+/**
+ Animations
+ */
+@keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
+
+/**
+ * Slide Down transition classes
+ * Use with `<transition name="slide-down" />
+ */
+
+/** SLIDE DOWN **/
+.slide-down-enter-active {
+    @apply ease-in duration-200
+}
+
+.slide-down-leave-active {
+    @apply ease-in duration-200
+}
+
+.slide-down-enter-to, .slide-down-leave {
+    max-height: 100px;
+    overflow: hidden;
+}
+
+.slide-down-enter, .slide-down-leave-to {
+    overflow: hidden;
+    max-height: 0;
+}
+
+/** SLIDE DOWN SLOW **/
+.slide-down-slow-enter-active {
+    @apply ease-in duration-700
+}
+
+.slide-down-slow-leave-active {
+    @apply ease-in duration-700
+}
+
+.slide-down-slow-enter-to, .slide-down-slow-leave {
+    max-height: 100px;
+    overflow: hidden;
+}
+
+.slide-down-slow-enter, .slide-down-slow-leave-to {
+    overflow: hidden;
+    max-height: 0;
+}
+
+/** FADE **/
+.fade-enter-active {
+    @apply ease-linear duration-300
+}
+
+.fade-leave-active {
+    @apply ease-linear duration-300
+}
+
+.fade-enter-to, .fade-leave {
+    @apply opacity-100
+}
+
+.fade-enter, .fade-leave-to {
+    @apply opacity-0
+}
+
+
+@media print
+{
+    .no-print, .no-print * {
+        display: none !important;
+    }
+    /* Hides the print header and footer, in chrome */
+    @page { margin: 0; }
+}
+
+
+@tailwind utilities;
