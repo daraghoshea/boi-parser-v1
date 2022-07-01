@@ -64,7 +64,7 @@
                     order: 'desc',
                     contact: this.transaction.data.contact
                 });
-                debugger // eslint-disable-line
+
                 return (new InvoicesCollection(collection.items))
                     .loadContactsUsing(this.getContactsByIds)
                     .toJson();

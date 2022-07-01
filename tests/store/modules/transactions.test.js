@@ -17,7 +17,7 @@ beforeEach(() => {
 describe('transaction mutations', () => {
     test('it adds a transaction', () => {
         const transaction = {
-            date: "",
+            date: "2021-01-01",
             desc: "description",
             amount: {
                 value: 100,

@@ -79,6 +79,8 @@ export default class InvoicesCollection {
             inv.contact = contacts[inv.data.contact] || null;
             return inv;
         })
+
+        return this
     }
 
 

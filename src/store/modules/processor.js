@@ -1,5 +1,4 @@
 import Vue from 'vue'
-import pdfjs from 'pdfjs-dist/webpack.js';
 import {getTransactionLines, parseFileTransactionLines} from "../../boi";
 import uploadFile from "./processor/upload";
 
@@ -139,8 +138,9 @@ export const actions = {
 
 async function loadPdfFromFileContents(contents) {
     return new Promise( resolve => {
-        return pdfjs.getDocument(contents)
-            .then( pdf => resolve(pdf) );
+        debugger // eslint-disable-line
+        return window['pdfjs-dist/build/pdf'].getDocument(contents)
+            .promise.then( pdf => resolve(pdf) );
     });
 }
 

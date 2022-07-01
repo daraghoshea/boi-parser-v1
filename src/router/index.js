@@ -118,11 +118,6 @@ export default new Router({
                     name: 'accounts'
                 },
                 {
-                    path: "statements",
-                    component: BankStatements,
-                    name: "accounts.statements"
-                },
-                {
                     path: 'new',
                     component: BankAccountNewView,
                     name: 'accounts.new'
@@ -133,7 +128,12 @@ export default new Router({
                     name: 'accounts.edit'
                 },
                 {
-                    path: ":id/statement/upload",
+                    path: ":id/statements",
+                    component: BankStatements,
+                    name: "accounts.statements"
+                },
+                {
+                    path: ":id/statements/upload",
                     component: BankStatementPdfUpload,
                     name: "accounts.upload"
                 }

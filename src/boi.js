@@ -1,5 +1,5 @@
 import {isDate} from "./utils";
-import {isMoney, isTextAmount, money, reverseMoneySign, textToMoney} from "./utils/money";
+import {isTextAmount, money, reverseMoneySign, textToMoney} from "./utils/money";
 import {calculateSumEqualsValue} from "./utils/numbers";
 
 function getTransactionLines(text) {
@@ -12,11 +12,11 @@ function getTransactionLines(text) {
         lastLineIndex = getLastTransactionLine(pageLines, firstLineIndex);
     }
     catch(e) {
-        window.console.log(e.message);
         return [];
     }
 
-    return pageLines.slice(firstLineIndex, lastLineIndex);
+    return pageLines.slice(firstLineIndex, lastLineIndex)
+        .filter(val => val.trim() !== '');
 }
 
 function isFirstTransactionLine(line, prevLine) {
@@ -51,10 +51,12 @@ function getLastTransactionLine(lines, firstLineIndex) {
 }
 
 function parseFileTransactionLines(lines) {
+    window.console.log(lines.slice(85,100));
     let i = 0;
     let dates = {};
     let currDate = null;
     let currDesc = null;
+    let currAmount = null;
     let currBalance = null;
 
     if( ! lines.length ) {
@@ -71,13 +73,20 @@ function parseFileTransactionLines(lines) {
             return;
         }
 
-        dates[date] = {};
-        dates[date].date = date;
-        dates[date].transactions = [];
-        dates[date].balance = {
-            opening: currBalance ? currBalance.toObject() : null,
-            closing: null
-        }
+        // new date
+        dates[date] = {
+            date,
+            transactions: [],
+            balance: {
+                opening: currBalance ? currBalance.toObject() : null,
+                closing: null
+            }
+        };
+
+        currDate = date;
+        currDesc = null;
+        currAmount = null;
+        currBalance = null;
     };
 
     const addTransaction = (date, desc, amount) => {
@@ -87,7 +96,7 @@ function parseFileTransactionLines(lines) {
             value: textToMoney(amount).toObject()
         });
 
-        currDesc = null;
+        currAmount = amount
     };
 
     const addClosingBalance = (date, balance) => {
@@ -108,46 +117,72 @@ function parseFileTransactionLines(lines) {
         // calculate delta in balance
         dates[date].balance.delta = closing.subtract( money( dates[date].balance.opening ) ).toObject();
 
-        // save to use on next iteration
-        currBalance = closing;
+        currBalance = closing;  // save to use on next iteration
+        currDate = null;
+        currDesc = null;
+        currAmount = null;
     };
 
+    const nextValue = () => {
+        i++;
+
+        while(i < lines.length) {
+            if (lines[i].trim() !== '') {
+                break;
+            }
+            i++;
+        }
+
+        return lines[i]
+    }
+
     do {
+
         let line = lines[i];
-        let prevLine = i>0 ? lines[i-1] : null;
 
-        if (isBoiDate(line)) {
-            currDate = line;
-            addDate(line);
-            i += 1;
+        // Ignore empty
+        if(! lines[i] || ! lines[i].trim()) {
+            i++;
             continue;
         }
 
-        if (isBalanceForwardText(line)) {
-            addClosingBalance(currDate, lines[i + 1]);
-            i += 2;
-            continue;
-        }
+        try {
 
-        if (isTextAmount(line)) {
-            // 2 amounts in a row mean it is a balance amount
-            if ( prevLine && isTextAmount(prevLine)) {
-                addClosingBalance(currDate, line);
-                i += 1;
+            // Process Date
+            if (isBoiDate(line)) {
+                addDate(line);
+
+                // next line should be the description
+                currDesc = nextValue()
+
+                nextValue()
                 continue;
             }
 
-            if (currDesc === null) {
-                throw new Error('unexpected missing description when parsing amount: ' + line);
-            }
+            if (isTextAmount(line)) {
+                // 2 amounts in a row mean it is a balance amount
+                if (currAmount || isBalanceForwardText(currDesc)) {
+                    addClosingBalance(currDate, line);
+                    nextValue()
+                    continue;
+                }
 
-            addTransaction(currDate, currDesc, line);
-            i += 1;
-            continue;
+                if (currDesc === null) {
+                    throw new Error(`unexpected missing description when parsing amount ${line} for date ${currDate}`);
+                }
+
+                addTransaction(currDate, currDesc, line);
+                nextValue()
+                continue;
+            }
+        } catch(e) {
+            console.log(i, "\n", line) // eslint-disable-line
+            console.log(currDate, "\n", currDesc, "\n", currAmount, "\n", currBalance) // eslint-disable-line
         }
 
         currDesc = line;
-        i++;
+        currAmount = null;  // Reset otherwise will mistake transaction value for closing balance
+        nextValue();
 
     } while ( i < lines.length );
 

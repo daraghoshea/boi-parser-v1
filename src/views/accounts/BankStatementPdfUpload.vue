@@ -76,7 +76,7 @@
                 })
                     .then(() => {
                         // TODO - stay and show progress?
-                        this.$router.push({name: 'accounts.statements'});
+                        this.$router.push({name: 'accounts.statements', params: {id: this.account.id}});
                     })
                     .catch((reason) => {
                         this.error = reason.message;

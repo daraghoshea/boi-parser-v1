@@ -155,6 +155,10 @@ const getters = {
         const filter = new TransactionsFilter( Object.values(state.all), {fileId: id});
         return filter.filtered;
     },
+    GET_FILE_COUNT: (state) => (id) => {
+        const filter = new TransactionsFilter( Object.values(state.all), {fileId: id});
+        return filter.filtered.length;
+    },
     ALLOCATED_INVOICES: (state, getters, rootState, rootGetters) => (id) => {
         const alloctions = state.allocations[id] || [];
         const ids = uniq(alloctions.map(a => a.invoice));

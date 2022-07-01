@@ -10,6 +10,9 @@ const state = {
 
 function applyOptions(collection, options) {
     return collection.filter( s => {
+        const satisfiesAccount = options.account
+            ? s.accountId == options.account
+            : true;
 
         const satisfiesDuplicates = options.duplicates
             ? true
@@ -19,7 +22,7 @@ function applyOptions(collection, options) {
             ? true
             : ! s.meta.deleted;
 
-        return satisfiesDuplicates && satisfiesDeleted;
+        return satisfiesAccount && satisfiesDuplicates && satisfiesDeleted;
 
     }).sort( (a,b) => {
         const aV = a[options.orderBy],

@@ -40,7 +40,7 @@
                         <input type="checkbox" class="form-checkbox text-indigo-500" :checked="isSelected(credit.id)" @click.stop="toggleSelect(credit.id)">
                     </td>
                     <td class="px-2 py-3 border-gray-300 border-b text-left text-base">
-                        {{credit.data.date}}
+                        {{moment(credit.data.date).format('MMM Do, YY')}}
                     </td>
                     <td class="px-2 py-3 border-gray-300 border-b text-left text-base">
                         <transaction-contact :transaction="credit"></transaction-contact>
@@ -151,6 +151,7 @@ export default {
     },
     methods: {
         formatMoney,
+        moment,
 
         selectAll() {
             this.allSelected = true;

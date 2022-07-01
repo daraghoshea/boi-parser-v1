@@ -40,7 +40,7 @@
                         <input type="checkbox" class="form-checkbox text-indigo-500" :checked="isSelected(debit.id)" @click.stop="toggleSelect(debit.id)">
                     </td>
                     <td class="px-2 py-3 border-gray-300 border-b text-left text-base">
-                        {{moment(debit.data.date, moment.ISO_8601).format('Do MMM \'YY')}}
+                        {{moment(debit.data.date, moment.ISO_8601).format('MMM Do, YY')}}
                     </td>
                     <td class="px-2 py-3 border-gray-300 border-b text-left text-base">
                         <transaction-contact :transaction="debit"></transaction-contact>
