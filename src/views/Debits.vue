@@ -195,6 +195,10 @@
                         <div class="mr-4">
                             <category-select-dropdown v-model="filters.query.categories" :categories="categoryFilterOptions"></category-select-dropdown>
                         </div>
+                        <!-- Tax -->
+                        <div class="mr-4">
+                          <label><input type="checkbox" v-model="filters.query.hasTax"> Has tax</label>
+                        </div>
                     </div>
                     <div class="mt-2 text-center">
                         <button type="button" @click="hideAdvanced" class="appearance-none outline-none focus:outline-none inline-flex items-center px-3 py-2 font-semibold text-sm uppercase tracking-wide text-gray-700 hover:text-teal-700">
@@ -326,7 +330,9 @@
             dates: {
                 from: null,
                 to: null
-            }
+            },
+            hasTax: false,
+            limit: 100,
         },
         orderBy: 'date',
         order: 'desc',
@@ -670,8 +676,7 @@
             },
             download() {
                 this.downloading = true;
-                const name = window.prompt('What would you like to name the file?', `Debits.csv`);
-
+                const name = window.prompt('What would you like to name the file?', `Debits.csv`) || 'Debits.csv';
                 const debits = this.debits.map(d => {
                     const contact = d.contact ? this.allContacts.find(c => c.id === d.contact) : null;
                     const category = d.category ? this.allCategories.find(c => c.id === d.category) : null;
@@ -679,11 +684,22 @@
                         Date: moment(d.data.date, moment.ISO_8601).format('YYYY-MM-DD'),
                         Description: d.data.desc,
                         Amount: formatMoney(d.data.value),
+                        Tax: d.tax ? formatMoney(d.tax) : '',
                         Contact: contact ? contact.company.name : "",
                         Category: category ? category.name : "",
                         Note: d.data.note ? d.data.note : ""
                     };
                 });
+
+                debits.push({
+                  Date: '',
+                  Description: '',
+                  Amount: formatMoney(sumAmounts(this.debits.map(d => d.data.value))),
+                  Tax: formatMoney(sumAmounts(this.debits.map(d => d.tax).filter(v => !!v))),
+                  Contact: '',
+                  Category: '',
+                  Note: '',
+                })
 
                 downloadCsv(debits, name);
                 this.downloading = false;

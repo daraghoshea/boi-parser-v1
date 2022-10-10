@@ -205,3 +205,12 @@ export function flattenObject(object, separator = '.') {
     })
     return finalObject
 }
+
+/**
+ * @param {float|int} val
+ * @return {string}
+ */
+export function toPercentageString( val, decimalPlaces = 1 ) {
+    let displayValue = val*100;
+    return `${displayValue.toFixed(decimalPlaces)}%`
+}

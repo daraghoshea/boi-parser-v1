@@ -180,6 +180,9 @@
                 else {
                     this.onSelect( this.filteredCategories[this.highlighted].id )
                 }
+            },
+            focus() {
+              this.$refs.input.focus()
             }
         }
     }

@@ -29,7 +29,10 @@
         <transition name="slide-down">
             <dropdown :open="isDropdownOpen">
                 <ul class="contact-dropdown-list bg-white h-64 overflow-y-auto">
-                    <li v-for="(contact, index) in filteredContacts" :key="contact.id" @click="onSelect(contact.id)" :class="{highlighted: index === highlighted}">
+                    <li @click="editing = false" :class="{highlighted: text.trim() == ''}">
+                      None
+                    </li>
+                    <li v-for="(contact, index) in filteredContacts" :key="contact.id" @click="onSelect(contact.id)" :class="{ highlighted: (text.trim() !== '' && index === highlighted) }">
                         {{contact.company.name}}
                     </li>
                     <li v-if="text.length" @click="onCreate" :class="{highlighted: highlighted === filteredContacts.length}">
@@ -45,8 +48,6 @@
     import {mapActions, mapGetters} from 'vuex'
     import {stringRegex} from "../../utils";
     import Dropdown from "../utilities/Dropdown";
-
-    // TODO - remove button not working
 
     export default {
         components: {Dropdown},
@@ -140,7 +141,7 @@
                 }).then(() => {
                     this.editing = false;
                     this.text = "";
-                    this.$emit('selected')
+                    this.$emit('transaction-contact-selected', { transaction: this.transaction.id, contact: contactId})
                 })
             },
             onDeselect() {
@@ -160,6 +161,11 @@
             },
             highlightSelect() {
                 // create
+                if(this.text.trim() === '') {
+                  this.editing = false;
+                  return;
+                }
+
                 if( this.highlighted >= this.filteredContacts.length ) {
                     this.onCreate()
                 }

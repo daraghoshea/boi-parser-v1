@@ -219,8 +219,10 @@
     import AppLayout from "../layouts/AppLayout";
     import { formatNumber} from "../utils/numbers";
     import {formatMoney, sumAmounts} from "../utils/money";
+    import DateInput from "../components/utilities/DateInput";
     import CategorySelectDropdown from "../components/forms/CategorySelectDropdown";
     import ContactSelectDropdown from "../components/forms/ContactSelectDropdown";
+    import {downloadCsv} from "@/utils";
 
     const defaultFilters = {
         query: {
@@ -246,7 +248,7 @@
     };
 
     export default {
-        components: {ContactSelectDropdown, CategorySelectDropdown, AppLayout, CreditsTable},
+        components: {ContactSelectDropdown, CategorySelectDropdown, AppLayout, CreditsTable, DateInput},
 
         watch: {
             routeMonth() {
@@ -260,8 +262,8 @@
                 months: 'transactions/CREDITS_MONTHS',
                 allCount: 'transactions/CREDITS_COUNT',
                 allSum: 'transactions/CREDITS_SUM',
-                earliestDebitDate: 'transactions/CREDITS_EARLIEST_DATE',
-                latestDebitDate: 'transactions/CREDITS_LATEST_DATE',
+                earliestDate: 'transactions/CREDITS_EARLIEST_DATE',
+                latestDate: 'transactions/CREDITS_LATEST_DATE',
                 allCategories: 'categories/ALL',
                 allContacts: 'contacts/ALL'
             }),
@@ -315,6 +317,15 @@
                 return Array.from(this.allContacts).sort( (a,b) => {
                     return (a.company.name + "").toUpperCase().localeCompare( (b.company.name + "").toUpperCase() );
                 })
+            },
+            dateRangeOptions() {
+              return {
+                mode: 'range',
+                dateFormat: 'j M y',
+                minDate: this.earliestDate ? new Date(this.earliestDate) : null,
+                maxDate: this.latestDate ? new Date(this.latestDate) : null,
+                showMonths: 2
+              }
             },
         },
         data() {
@@ -433,6 +444,36 @@
                 this.$refs.dateRangeInput && this.$refs.dateRangeInput._flatpickr && this.$refs.dateRangeInput._flatpickr.clear();
                 this.dateSearchByMonthValue = "";
             },
+          download() {
+            this.downloading = true;
+            const name = window.prompt('What would you like to name the file?', `Income.csv`) || 'Income.csv';
+            const credits = this.credits.map(d => {
+              const contact = d.contact ? this.allContacts.find(c => c.id === d.contact) : null;
+              const category = d.category ? this.allCategories.find(c => c.id === d.category) : null;
+              return {
+                Date: moment(d.data.date, moment.ISO_8601).format('YYYY-MM-DD'),
+                Description: d.data.desc,
+                Amount: formatMoney(d.data.value),
+                Tax: d.tax ? formatMoney(d.tax) : '',
+                Contact: contact ? contact.company.name : "",
+                Category: category ? category.name : "",
+                Note: d.data.note ? d.data.note : ""
+              };
+            });
+
+            credits.push({
+              Date: '',
+              Description: '',
+              Amount: formatMoney(sumAmounts(this.credits.map(d => d.data.value))),
+              Tax: formatMoney(sumAmounts(this.credits.map(d => d.tax).filter(v => !!v))),
+              Contact: '',
+              Category: '',
+              Note: '',
+            })
+
+            downloadCsv(credits, name);
+            this.downloading = false;
+          }
         },
         created() {
             this.parseMonthFromUrl();

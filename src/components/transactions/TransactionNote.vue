@@ -6,6 +6,7 @@
                 :value="transaction.data.note"
                 placeholder="Add note.."
                 @input="updateNote(transaction.id, $event.target.value)"
+                @keydown.tab="$emit(`transaction-note-tabbed`, { transaction: transaction.id })"
                 @click.stop="() => {}"
                 class="resize-none w-full bg-transparent font-gray-700 italic pb-1 w-full outline-none border-b-2 border-transparent transition-all duration-700 ease-linear focus:border-teal-500"
                 :class="{highlight: saving}"
@@ -57,6 +58,9 @@
                 setTimeout(() => {
                     this.showSaved = false
                 }, 1500)
+            },
+            focus() {
+              this.$refs.textarea.focus()
             }
         }
     }

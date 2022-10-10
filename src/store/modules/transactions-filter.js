@@ -67,7 +67,9 @@ export const queryFilterDefaults = {
         dates: {
             from: null,
             to: null
-        }
+        },
+        hasTax: false,
+        limit: 100,
     },
     order: null,
     orderBy: null,
@@ -86,6 +88,10 @@ export default class TransactionsFilter {
     constructor(transactions, options) {
         this.#transactions = transactions;
         this.#options = { ...queryFilterDefaults, ...options };
+
+        if(this.#options.hasTax === true) {
+            console.log(this.#options) /* eslint-disable-line */
+        }
     }
 
     get filtered() {
@@ -131,7 +137,8 @@ export default class TransactionsFilter {
             && this.filterAnyTextField(t, this.#options.query.text)
             && this.filterMonth(t)
             && this.filterDeleted(t)
-            && this.filterDates(t);
+            && this.filterDates(t)
+            && this.filterTax(t);
     }
 
     sort(a,b) {
@@ -166,6 +173,12 @@ export default class TransactionsFilter {
     filterType(transaction) {
         return this.#options.type
             ? transaction.data.type === this.#options.type
+            : true;
+    }
+
+    filterTax(transaction) {
+        return this.#options.query.hasTax
+            ? transaction.tax?.amount > 0
             : true;
     }
 

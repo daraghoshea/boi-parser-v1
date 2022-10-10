@@ -25,6 +25,9 @@
                             Amount
                         </button>
                     </th>
+                    <th class="lg:sticky bg-white shadow-md-bottom z-10 px-2 py-3 border-gray-300 text-base border-b text-right" style="top:45px">
+                      Tax
+                    </th>
                     <th class="lg:sticky bg-white shadow-md-bottom z-10 px-2 py-3 border-gray-300 text-base border-b text-left" style="top:45px">
                         Category
                     </th>
@@ -43,17 +46,34 @@
                         {{moment(debit.data.date, moment.ISO_8601).format('MMM Do, YY')}}
                     </td>
                     <td class="px-2 py-3 border-gray-300 border-b text-left text-base">
-                        <transaction-contact :transaction="debit"></transaction-contact>
+                        <transaction-contact
+                            :transaction="debit"
+                            @transaction-contact-selected="onContactSelected"
+                            :ref="`transaction-contact-${debit.id}`"
+                        ></transaction-contact>
                         <p class="text-gray-600">{{debit.data.desc}}</p>
                     </td>
                     <td class="px-2 py-3 pl-6 border-gray-300 border-b text-right font-number group-hover:bg-gray-200 text-base" :class="[isSelected(debit.id) ? 'bg-gray-200' : 'bg-gray-100']">
-                        {{formatMoney(debit.data.value)}}
+                      <span>{{formatMoney(debit.data.value)}}</span>
+                      <span class="mt-2 block text-sm text-gray-600" v-if="debit.tax">
+                        Nett: <span>{{formatNett(debit)}}</span>
+                      </span>
+                    </td>
+                    <td class="px-2 py-3 pl-6 border-gray-300 border-b text-right font-number group-hover:bg-gray-200 text-base" :class="[isSelected(debit.id) ? 'bg-gray-200' : 'bg-gray-100']">
+                      <transaction-tax :transaction="debit"></transaction-tax>
                     </td>
                     <td class="px-2 py-3 border-gray-300 border-b text-base">
-                        <transaction-category :transaction="debit"></transaction-category>
+                        <transaction-category
+                            :transaction="debit"
+                            @transactoin-category-selected="onCategorySelected"
+                            :ref="`transaction-category-${debit.id}`"
+                        ></transaction-category>
                     </td>
                     <td class="px-2 py-3 border-gray-300 border-b text-base">
-                        <transaction-note :transaction="debit"></transaction-note>
+                        <transaction-note
+                            :transaction="debit"
+                            :ref="`transaction-note-${debit.id}`"
+                        ></transaction-note>
                     </td>
                 </tr>
             </tbody>
@@ -72,7 +92,10 @@
                     <td class="px-2 py-3 font-bold text-left text-gray-600 text-base"></td>
                     <td class="px-2 py-3 font-bold text-left text-gray-600 text-base"></td>
                     <td class="px-2 py-3 pl-6 border-gray-300 border-b-2 bg-gray-100 font-bold text-right font-number text-base">
-                        {{formatMoney(subtotal)}}
+                        <span>{{formatMoney(subtotal)}}</span>
+                    </td>
+                    <td class="px-2 py-3 pl-6 border-gray-300 border-b-2 bg-gray-100 font-bold text-right font-number text-base">
+                      {{formatMoney(taxSubtotal)}}
                     </td>
                     <td class="px-2 py-3 font-bold text-left text-gray-600 text-base"></td>
                     <td class="px-2 py-3 font-bold text-left text-gray-600 text-base"></td>
@@ -91,6 +114,7 @@ import moment from 'moment';
 import TransactionCategory from "../components/transactions/TransactionCategory";
 import TransactionContact from "../components/transactions/TransactionContact";
 import TransactionNote from "../components/transactions/TransactionNote";
+import TransactionTax from "../components/transactions/TransactionTax";
 
 /**
  * TODO - Bulk edit of contact
@@ -111,7 +135,7 @@ const orderByAmount = (dir) => (a,b) => {
 };
 
 export default {
-    components: {TransactionContact, TransactionCategory, TransactionNote },
+    components: {TransactionContact, TransactionCategory, TransactionNote, TransactionTax },
     props: {
         value: Array,   // selected array usable with v-model
         debits: Array
@@ -148,6 +172,14 @@ export default {
                 return subtotal.add( money(debit.data.value) )
             }, money() ).toJSON();
         },
+        taxSubtotal() {
+            return this.debits.reduce( (subtotal, debit) => {
+              if( debit.tax ) {
+                return subtotal.add(money(debit.tax))
+              }
+              return subtotal
+            }, money() ).toJSON();
+        },
         categoryFilterOptions() {
             return uniq( this.debits.map( debit => debit.category ) )
                 .map( catId => this.category(catId) )
@@ -177,6 +209,7 @@ export default {
     },
     methods: {
         moment,
+        money,
         formatMoney,
         selectAll() {
             this.allSelected = true;
@@ -218,7 +251,25 @@ export default {
                 this.sortBy = by;
                 this.sortDir = 'asc';
             }
+        },
+        onContactSelected({transaction}) {
+          window.console.log(`transaction-category-${transaction}`);
+          window.console.log(this.$refs[`transaction-category-${transaction}`])
+          this.$refs[`transaction-category-${transaction}`].focus()
+        },
+        onCategorySelected({transaction}) {
+          this.$refs[`transaction-note-${transaction}`].focus()
+        },
+        formatNett(transaction) {
+          if (! transaction.tax) {
+            return '';
+          }
+
+          return formatMoney(money(transaction.data.value).subtract(money(transaction.tax)));
         }
+        // onNoteTabbed({transaction}) {
+        //
+        // }
     }
 }
 </script>

@@ -24,13 +24,13 @@
                 </p>
 
                 <ul v-if="statements.length" class="mt-6 border-t border-gray-200 md:border-r md:border-gray-200">
-                    <li v-for="statement in statements"
-                        :key="statement.id"
-                        @click="select(statement.id)"
+                    <li v-for="s in statements"
+                        :key="s.id"
+                        @click="select(s.id)"
                         class="py-3 px-5 bg-gray-100 border-b border-white cursor-pointer hover:bg-gray-200"
-                        :class="{'bg-teal-500 text-white hover:bg-teal-500': selected === statement.id}">
-                        <div>{{statement.id}}  - {{statement.info.name}}</div>
-                        <div class="text-sm">{{statement.transactionCount}} transactions</div>
+                        :class="{'bg-teal-500 text-white hover:bg-teal-500': selected === s.id}">
+                        <div>{{s.id}}  - {{s.info.name}}</div>
+                        <div class="text-sm">{{s.transactionCount}} transactions</div>
                     </li>
                 </ul>
             </aside>

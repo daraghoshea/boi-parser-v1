@@ -188,6 +188,11 @@ export const mutations = {
 
         state.lastId = nextId;
     },
+    SET_TAX: (state, { id, tax }) => {
+        const transaction = state.all[id] || null;
+        transaction && Vue.set(transaction, 'tax', tax );
+        transaction && Vue.set(transaction.meta, 'updated', (new Date).toISOString())
+    },
     SET_CATEGORY: (state, { id, category }) => {
         const transaction = state.all[id] || null;
         transaction && Vue.set(transaction, 'category', category );
@@ -219,6 +224,11 @@ export const mutations = {
         transactionAllocation.assertValid();
         Vue.set(transaction, 'allocations', allocations);
         Vue.set(state.allocations, id, allocations);
+    },
+    DELETE_ALL: (state) => {
+        Vue.set(state, 'all', {});
+        Vue.set(state, 'lastId', 0);
+        Vue.set(state, 'allocations', {});
     }
 };
 
@@ -227,6 +237,9 @@ const actions = {
         transactions.forEach( transaction => {
             commit('ADD', { transaction, meta })
         })
+    },
+    SET_TAX: ({commit}, {id, tax}) => {
+        return commit('SET_TAX', { id, tax })
     },
     SET_CATEGORY: ({commit}, { id, category }) => {
         return commit('SET_CATEGORY', { id, category })
@@ -250,6 +263,9 @@ const actions = {
             }, {root: true});
         })
 
+    },
+    DELETE_ALL: ({commit}) => {
+        commit('DELETE_ALL');
     }
 };
 

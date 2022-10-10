@@ -37,7 +37,7 @@ function getLastTransactionLine(lines, firstLineIndex) {
         let line = lines[i];
 
         // "Subtotal: " indicates previous line was end of list
-        if( line.match(/ˆSubtotal:\s/i) ) {
+        if( line.match(/^Subtotal:\s/i) ) {
             return i+1;
         }
 

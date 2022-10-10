@@ -4,7 +4,7 @@
         <div class="mt-1 relative rounded-md shadow-sm w-full">
             <div v-if="icon" class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <slot name="icon">
-                    <svg class="h-3 w-3" :class="[this.value.length ? 'text-white': 'text-gray-500']" viewBox="0 0 24 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <svg class="h-3 w-3" :class="[value?.length ? 'text-white': 'text-gray-500']" viewBox="0 0 24 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M21 6V19H3V6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         <path d="M23 1H1V6H23V1Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         <path d="M10 10H14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -14,14 +14,14 @@
             <input ref="input"
                    :id="domId"
                    class="form-input block pl-8 pr-16 w-64 sm:text-sm sm:leading-5"
-                   :class="{'bg-teal-500 text-white': this.value.length}"
+                   :class="{'bg-teal-500 text-white': value.length > 0}"
                    :value="inputValue"
                    placeholder="All"
                    data-target
                    @keydown.esc="close"
                    @focus="open"
             />
-            <button v-if="this.value.length" @click="selectAll" type="button" class="absolute inset-y-0 right-0 pr-3">
+            <button v-if="value.length" @click="selectAll" type="button" class="absolute inset-y-0 right-0 pr-3">
                 <svg class="h-4 w-4 text-white" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M11 21C16.5228 21 21 16.5228 21 11C21 5.47715 16.5228 1 11 1C5.47715 1 1 5.47715 1 11C1 16.5228 5.47715 21 11 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     <path d="M14 8L8 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -40,7 +40,7 @@
                     <button type="button"
                             @click="selectNone"
                             class="font-semibold appearance-none outline-none focus:outline-none w-full block px-4 py-2 text-sm leading-5 text-left text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900"
-                            :class="{selected: this.value === 'none'}">
+                            :class="{selected: value === 'none'}">
                         Blanks
                     </button>
                 </div>
@@ -100,7 +100,7 @@
                 }
                 const firstCategory = this.categories.find(cat => cat.id === this.value[0]);
 
-                if( this.value.length > 1 ) {
+                if( this.value?.length > 1 ) {
                     const more = this.value.length -1;
                     return `${firstCategory.name} and ${more} more`;
                 }
@@ -114,8 +114,8 @@
                 selected: []
             }
         },
-        mounted() {
-
+        created() {
+          window.console.log(this.value)
         },
         methods: {
             selectAll() {
